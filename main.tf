@@ -1,6 +1,6 @@
 resource "aws_instance" "web" {
   instance_type = "t2.micro"
-  ami = "ami-09b4b74c"
+  ami           = "ami-09b4b74c"
 }
 resource "aws_autoscaling_group" "my_asg" {
   availability_zones        = ["us-west-1a"]
@@ -14,9 +14,9 @@ resource "aws_autoscaling_group" "my_asg" {
   launch_configuration      = "my_web_config"
 }
 resource "aws_launch_configuration" "my_web_config" {
-    name = "my_web_config"
-    image_id = "ami-09b4b74c"
-    instance_type = "t2.micro"
+  name          = "my_web_config"
+  image_id      = "ami-09b4b74c"
+  instance_type = "t2.micro"
 }
 resource "aws_autoscaling_group" "my_asg2" {
   availability_zones        = ["us-west-2a"]
