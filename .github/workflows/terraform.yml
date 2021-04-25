@@ -37,7 +37,7 @@ jobs:
       if: (github.event_name == 'pull_request' && github.base_ref == 'main') || (github.event_name == 'push')
       run: terraform plan -no-color
       continue-on-error: true
-    - name: Retrieve proposed Terraform plan
+    - name: Retrieve proposed remote Terraform plan
       uses: wei/curl@master
       with:
         args: https://httpbin.org/get
