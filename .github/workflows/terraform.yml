@@ -19,7 +19,6 @@ jobs:
         TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
         TF_LOG: ${{ secrets.TF_LOG }}
         TF_IN_AUTOMATION: ${{ secrets.TF_IN_AUTOMATION }}
-        TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
     steps:
     - name: code checkout
       uses: actions/checkout@v2
