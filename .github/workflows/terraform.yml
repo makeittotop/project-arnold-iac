@@ -25,7 +25,7 @@ jobs:
         echo ${{ github.head_ref }}
         echo ${{ github.base_ref }}
         echo ${{ github.sha }}
-        echo ${{ TF_API_TOKEN }}
+        env
     - uses: actions/checkout@v2
     - name: terrafrom version
       run: terraform version
