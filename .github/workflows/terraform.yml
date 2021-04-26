@@ -12,7 +12,8 @@ on:
 jobs:
   terraform:
     name: 'Terraform'
-    runs-on: ubuntu-latest
+    container:
+      image: makeittotop/terraform_opa:latest
     steps:
     - name: Print Github Events env. vars
       run: |2
@@ -21,32 +22,21 @@ jobs:
         echo ${{ github.head_ref }}
         echo ${{ github.base_ref }}
         echo ${{ github.sha }}
-    - name: Checkout
-      uses: actions/checkout@v2
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-        terraform_version: 0.15.0
-    - name: Terraform Format
-      id: fmt
+    - uses: actions/checkout@v2
+    - name: terrafrom version
+      run: terraform version
+    - name: opa version
+      run: opa version
+    - name: terrafrom fmt
       run: terraform fmt -check
-    - name: Terraform Init
-      id: init
+    - name: terrafrom init
       run: terraform init
-    - name: Terraform Validate
-      id: validate
+    - name: terraform validate
       run: terraform validate
-    - name: Terraform Plan
-      id: plan
+    - name: terrafrom plan
       if: github.event_name == 'pull_request'
       run: terraform plan -no-color
       continue-on-error: true
-    - name: Retrieve proposed remote Terraform plan
-      uses: wei/curl@master
-      with:
-        args: https://httpbin.org/get
-      if: github.event_name == 'pull_request'
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
