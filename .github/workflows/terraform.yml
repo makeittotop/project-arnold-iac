@@ -17,15 +17,15 @@ jobs:
       image: makeittotop/terraform_opa:latest
       env:
         TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+        TF_LOG: off
+        TF_INPUT: 0
+        TF_CLI_ARGS: "-input=false"
+        TF_WORKSPACE: default
+        TF_IN_AUTOMATION: true
+        TF_CLI_CONFIG_FILE: "$HOME/.terraformrc"
     steps:
-    - name: Print Github Events env. vars
-      run: |2
-        echo ${{ github.event_name }}
-        echo ${{ github.ref }}
-        echo ${{ github.head_ref }}
-        echo ${{ github.base_ref }}
-        echo ${{ github.sha }}
-    - uses: actions/checkout@v2
+    - name: code checkout
+      uses: actions/checkout@v2
     - name: create terraform resource file
       run: |2
         cat > $HOME/.terraformrc << EOF
@@ -34,8 +34,6 @@ jobs:
         }
         disable_checkpoint = true
         EOF
-    - name: read terrafromrc
-      run: cat $HOME/.terraformrc
     - name: terrafrom version
       run: terraform version
     - name: opa version
