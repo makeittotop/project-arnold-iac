@@ -24,6 +24,11 @@ jobs:
         echo ${{ github.base_ref }}
         echo ${{ github.sha }}
     - uses: actions/checkout@v2
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+        terraform_version: 0.15.0
     - name: terrafrom version
       run: terraform version
     - name: opa version
@@ -32,8 +37,6 @@ jobs:
       run: terraform fmt -check
     - name: terrafrom init
       run: terraform init
-      env:
-        TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
     - name: terraform validate
       run: terraform validate
     - name: terrafrom plan
