@@ -26,9 +26,16 @@ jobs:
         echo ${{ github.base_ref }}
         echo ${{ github.sha }}
     - uses: actions/checkout@v2
-    - name: print env
+    - name: create terraform resource file
       run: |2
-        env
+        cat > $HOME/.terraformrc << EOF
+        credentials "app.terraform.io" {
+          token = "${TF_API_TOKEN}
+        }
+        disable_checkpoint = true
+        EOF
+    - name: read terrafromrc
+      run: cat $HOME/.terraformrc
     - name: terrafrom version
       run: terraform version
     - name: opa version
