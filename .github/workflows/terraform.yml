@@ -17,12 +17,11 @@ jobs:
       image: makeittotop/terraform_opa:latest
       env:
         TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
-        TF_LOG: off
-        TF_INPUT: 0
-        TF_CLI_ARGS: "-input=false"
-        TF_WORKSPACE: default
-        TF_IN_AUTOMATION: true
-        TF_CLI_CONFIG_FILE: "$HOME/.terraformrc"
+        TF_LOG: ${{ secrets.TF_LOG }}
+        TF_INPUT: ${{ secrets.TF_INPUT }}
+        TF_CLI_ARGS: ${{ secrets.TF_CLI_ARGS }}
+        TF_IN_AUTOMATION: ${{ secrets.TF_IN_AUTOMATION }}
+        TF_CLI_CONFIG_FILE: ${{ secrets.TF_CLI_CONFIG_FILE }}
     steps:
     - name: code checkout
       uses: actions/checkout@v2
@@ -34,11 +33,7 @@ jobs:
         }
         disable_checkpoint = true
         EOF
-    - name: terrafrom version
-      run: terraform version
-    - name: opa version
-      run: opa version
-    - name: terrafrom fmt
+    - name: terraform fmt
       run: terraform fmt -check
     - name: terrafrom init
       run: terraform init
