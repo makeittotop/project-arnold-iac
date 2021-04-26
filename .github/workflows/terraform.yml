@@ -11,8 +11,6 @@ on:
 
 jobs:
   terraform:
-    env:
-      TF_API_TOKEN: $${{ secrets.TF_API_TOKEN }}
     name: 'Terraform'
     runs-on: ubuntu-18.04
     container:
@@ -25,7 +23,6 @@ jobs:
         echo ${{ github.head_ref }}
         echo ${{ github.base_ref }}
         echo ${{ github.sha }}
-        env
     - uses: actions/checkout@v2
     - name: terrafrom version
       run: terraform version
@@ -35,6 +32,8 @@ jobs:
       run: terraform fmt -check
     - name: terrafrom init
       run: terraform init
+      env:
+        TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
     - name: terraform validate
       run: terraform validate
     - name: terrafrom plan
