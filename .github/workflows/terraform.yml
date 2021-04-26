@@ -30,7 +30,7 @@ jobs:
       run: |2
         cat > $HOME/.terraformrc << EOF
         credentials "app.terraform.io" {
-          token = "${TF_API_TOKEN}
+          token = \""${TF_API_TOKEN}"\"
         }
         disable_checkpoint = true
         EOF
