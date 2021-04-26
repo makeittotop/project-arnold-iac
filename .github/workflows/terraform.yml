@@ -11,6 +11,8 @@ on:
 
 jobs:
   terraform:
+    env:
+      TF_API_TOKEN: $${{ secrets.TF_API_TOKEN }}
     name: 'Terraform'
     runs-on: ubuntu-18.04
     container:
