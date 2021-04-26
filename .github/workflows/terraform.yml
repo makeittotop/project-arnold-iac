@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-18.04
     container:
       image: makeittotop/terraform_opa:latest
+      env:
+        TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
     steps:
     - name: Print Github Events env. vars
       run: |2
@@ -24,11 +26,9 @@ jobs:
         echo ${{ github.base_ref }}
         echo ${{ github.sha }}
     - uses: actions/checkout@v2
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-        terraform_version: 0.15.0
+    - name: print env
+      run: |2
+        env
     - name: terrafrom version
       run: terraform version
     - name: opa version
