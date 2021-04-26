@@ -31,12 +31,16 @@ jobs:
         disable_checkpoint = true
         EOF
     - name: terraform fmt
+      id: fmt
       run: terraform fmt -check
     - name: terrafrom init
+      id: init
       run: terraform init
     - name: terraform validate
+      id: validate
       run: terraform validate
     - name: terrafrom plan
+      id: plan
       if: github.event_name == 'pull_request'
       run: terraform plan -no-color
       continue-on-error: true
@@ -64,9 +68,11 @@ jobs:
             body: output
           })
     - name: Terraform Plan Status
+      id: plan_status
       if: steps.plan.outcome == 'failure'
       run: exit 1
     - name: Terraform Apply
+      id: apply
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
 
