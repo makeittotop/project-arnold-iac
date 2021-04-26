@@ -12,6 +12,7 @@ on:
 jobs:
   terraform:
     name: 'Terraform'
+    runs-on: ubuntu-18.04
     container:
       image: makeittotop/terraform_opa:latest
     steps:
