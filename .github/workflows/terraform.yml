@@ -35,10 +35,6 @@ jobs:
         token: ${{ secrets.YOUR_TOKEN }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      uses: jaxxstorm/action-install-gh-release@release/v1-alpha
-      with: # Grab a specific tag
-        repo: open-policy-agent/opa
-        tag:  opa_linux_amd64
     - run: terraform version
     - run: opa version
     # - name: create terraform resource file
