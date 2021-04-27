@@ -31,12 +31,14 @@ jobs:
         repo: open-policy-agent/opa
         version: tags/v0.27.1
         file: opa_linux_amd64
-        target: $PWD/opa
+        target: opa
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - run: terraform version
     - run: |
         ls -lth
+        mv opa /usr/local/bin/opa
+        opa version
     # - name: create terraform resource file
     #   run: |2
     #     cat > $HOME/.terraformrc << EOF
