@@ -21,12 +21,11 @@ jobs:
     - name: code checkout
       uses: actions/checkout@v2
     - name: Setup OPA
-      with:
-        script: |
-          curl -L -o opa https://github.com/open-policy-agent/opa/releases/download/v0.27.1/opa_darwin_amd64
-          chmod +x opa
-          sudo mv opa /usr/local/bin/opa
-          opa version
+      run: |
+        curl -L -o opa https://github.com/open-policy-agent/opa/releases/download/v0.27.1/opa_darwin_amd64
+        chmod +x opa
+        sudo mv opa /usr/local/bin/opa
+        opa version
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
