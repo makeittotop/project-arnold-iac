@@ -28,6 +28,7 @@ jobs:
     - name: Setup OPA
       uses: jaxxstorm/action-install-gh-release@release/v1-alpha
       with: # Grab a specific tag
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         repo: open-policy-agent/opa
         tag: v0.27.1
     - run: terraform version
