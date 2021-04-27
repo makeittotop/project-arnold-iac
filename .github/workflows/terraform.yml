@@ -25,6 +25,14 @@ jobs:
     #   with:
     #     cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
     #     terraform_version: 0.15.0
+    - name: create terraform resource file
+      run: |2
+        cat > $HOME/.terraformrc << EOF
+        credentials "app.terraform.io" {
+          token = "${TF_API_TOKEN}"
+        }
+        disable_checkpoint = true
+        EOF
     - name: Terraform Fmt
       id: fmt
       run: terraform fmt -check
