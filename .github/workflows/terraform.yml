@@ -45,7 +45,7 @@ jobs:
       run: echo ${{ steps.step_one.outputs.FOO }}
     - name: debug
       run: |2
-        echo ${{ toJson(steps.plan.outputs) }}
+        echo ${{ steps.plan.outputs.stdout }}
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
