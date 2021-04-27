@@ -25,6 +25,13 @@ jobs:
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
         terraform_version: 0.15.0
+    - name: Setup OPA
+      uses: jaxxstorm/action-install-gh-release@release/v1-alpha
+      with: # Grab a specific tag
+        repo: open-policy-agent/opa
+        tag: v0.27.1
+    - run: terraform version
+    - run: opa version
     # - name: create terraform resource file
     #   run: |2
     #     cat > $HOME/.terraformrc << EOF
@@ -45,6 +52,7 @@ jobs:
     - name: Terraform Plan
       id: plan
       run: terraform plan -no-color
+      if: github.event_name == 'pull_request'
       continue-on-error: true
     - name: Update Pull Request
       uses: actions/github-script@v4
