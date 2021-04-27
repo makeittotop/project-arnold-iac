@@ -39,7 +39,8 @@ jobs:
         ls -lth
         which terraform
         whereis terraform
-        ./opa version
+        sudo mv opa /usr/local/bin/opa
+        opa version
     # - name: create terraform resource file
     #   run: |2
     #     cat > $HOME/.terraformrc << EOF
