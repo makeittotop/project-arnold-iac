@@ -29,15 +29,15 @@ jobs:
       uses: dsaltares/fetch-gh-release-asset@master
       with:
         repo: open-policy-agent/opa
-        version: tags/v0.27.1
+        version: tags/${process.env.RELEASE}
         file: opa_linux_amd64
         target: $PWD/opa
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RELEASE: "v0.27.1"
     - run: terraform version
     - run: |
-        mv opa /usr/bin/opa
-        opa version
+        ls -lth
     # - name: create terraform resource file
     #   run: |2
     #     cat > $HOME/.terraformrc << EOF
