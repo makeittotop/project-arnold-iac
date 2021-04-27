@@ -39,7 +39,9 @@ jobs:
       run: terraform validate
     - name: Terraform Plan
       id: plan
-      run: terraform plan -no-color
+      run: |2
+        TFPLAN_OUT=$(terraform plan -no-color)
+        echo "::set-output name=OUTPUT::$TFPLAN_OUT"
       continue-on-error: true
     - name: Set the value
       id: step_one
@@ -47,7 +49,7 @@ jobs:
     - name: Use it
       run: echo ${{ steps.step_one.outputs.FOO }}
     - name: debug
-      run: echo ${{join(steps.plan.outputs.*, '\n')}}
+      run: echo ${{ steps.plan.outputs.OUTPUT }}
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
