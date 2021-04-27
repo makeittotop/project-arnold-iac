@@ -12,43 +12,36 @@ on:
 jobs:
   terraform:
     name: 'Terraform'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
+    container:
+      image: makeittotop/terraform_opa:latest
+      env:
+        TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
     steps:
-    - name: Print Github Events env. vars
-      run: |2
-        echo ${{ github.event_name }}
-        echo ${{ github.ref }}
-        echo ${{ github.head_ref }}
-        echo ${{ github.base_ref }}
-        echo ${{ github.sha }}
-    - name: Checkout
+    - name: code checkout
       uses: actions/checkout@v2
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-        terraform_version: 0.15.0
-    - name: debug
-      run: cat $HOME/.terraformrc
-    - name: Terraform Format
+    - name: create terraform resource file
+      run: |2
+        cat > $HOME/.terraformrc << EOF
+        credentials "app.terraform.io" {
+          token = "${TF_API_TOKEN}"
+        }
+        EOF
+    - name: terraform fmt
       id: fmt
       run: terraform fmt -check
-    - name: Terraform Init
+    - name: terrafrom init
       id: init
       run: terraform init
-    - name: Terraform Validate
+    - name: terraform validate
       id: validate
       run: terraform validate
-    - name: Terraform Plan
+    - name: terrafrom plan
       id: plan
-      if: github.event_name == 'pull_request'
       run: terraform plan -no-color
       continue-on-error: true
-    - name: Retrieve proposed remote Terraform plan
-      uses: wei/curl@master
-      with:
-        args: https://httpbin.org/get
-      if: github.event_name == 'pull_request'
+    - name: debug
+      run: echo ${{join(steps.plan.outputs.*, '\n')}}
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
@@ -73,9 +66,11 @@ jobs:
             body: output
           })
     - name: Terraform Plan Status
+      id: plan_status
       if: steps.plan.outcome == 'failure'
       run: exit 1
     - name: Terraform Apply
+      id: apply
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
 
