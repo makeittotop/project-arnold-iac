@@ -40,8 +40,7 @@ jobs:
     - name: Terraform Plan
       id: plan
       run: |2
-        TFPLAN_OUT=$(terraform plan -no-color)
-        echo "::set-output name=OUTPUT::$TFPLAN_OUT"
+        terraform plan -no-color
       continue-on-error: true
     - name: Set the value
       id: step_one
