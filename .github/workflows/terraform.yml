@@ -50,13 +50,12 @@ jobs:
       run: echo ${{ steps.step_one.outputs.FOO }}
     - name: debug
       run: |2
-        echo ${{ steps.plan.outputs.OUTPUT }}
-        echo ${{ steps.validate.outputs.stdout }}
+        echo ${{ toJson(steps.plan.outputs) }}
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
       env:
-        PLAN: "terraform\n${{ steps.plan.outputs.OUTPUT }}"
+        PLAN: "terraform\n${{ steps.plan.outputs.OUTPUT }}"         
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
