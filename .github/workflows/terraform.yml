@@ -13,18 +13,18 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
-    # container:
-    #   image: makeittotop/terraform_opa:latest
-    #   env:
-    #     TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+    container:
+      image: makeittotop/terraform_opa:latest
+      env:
+        TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
     steps:
     - name: code checkout
       uses: actions/checkout@v2
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
-      with:
-        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-        terraform_version: 0.15.0
+    # - name: Setup Terraform
+    #   uses: hashicorp/setup-terraform@v1
+    #   with:
+    #     cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+    #     terraform_version: 0.15.0
     - name: Terraform Fmt
       id: fmt
       run: terraform fmt -check
