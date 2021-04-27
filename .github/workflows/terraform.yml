@@ -20,20 +20,18 @@ jobs:
     steps:
     - name: code checkout
       uses: actions/checkout@v2
+    - name: Setup OPA
+      with:
+        script: |
+          curl -L -o opa https://github.com/open-policy-agent/opa/releases/download/v0.27.1/opa_darwin_amd64
+          chmod +x opa
+          sudo mv opa /usr/local/bin/opa
+          opa version
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v1
       with:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
         terraform_version: 0.15.0
-    - name: Setup OPA
-      uses: dsaltares/fetch-gh-release-asset@master
-      with:
-        repo: open-policy-agent/opa
-        version: tags/v0.27.1
-        file: opa_linux_amd64
-        target: opa/opa
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - run: terraform version
     - run: |
         sudo chmod u+x opa/opa
