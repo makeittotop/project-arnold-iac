@@ -39,9 +39,13 @@ jobs:
       run: terraform validate
     - name: terrafrom plan
       id: plan
-      if: github.event_name == 'pull_request'
       run: terraform plan -no-color
       continue-on-error: true
+    - name: debug
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      run: |2
+        echo ${process.env.PLAN}
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
