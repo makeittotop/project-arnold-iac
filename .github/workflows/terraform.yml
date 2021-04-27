@@ -26,9 +26,10 @@ jobs:
         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
         terraform_version: 0.15.0
     - name: Setup OPA
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       uses: jaxxstorm/action-install-gh-release@release/v1-alpha
       with: # Grab a specific tag
-        github-token: ${{ secrets.GITHUB_TOKEN }}
         repo: open-policy-agent/opa
         tag: v0.27.1
     - run: terraform version
