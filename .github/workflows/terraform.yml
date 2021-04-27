@@ -36,7 +36,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - run: terraform version
     - run: |
-        chmod u+x opa/opa
+        sudo chmod u+x opa/opa
         opa/opa version
     # - name: create terraform resource file
     #   run: |2
