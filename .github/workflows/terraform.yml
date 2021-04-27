@@ -49,12 +49,14 @@ jobs:
     - name: Use it
       run: echo ${{ steps.step_one.outputs.FOO }}
     - name: debug
-      run: echo ${{ steps.plan.outputs.OUTPUT }}
+      run: |2
+        echo ${{ steps.plan.outputs.OUTPUT }}
+        echo ${{ steps.validate.outputs.stdout }}
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
       env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        PLAN: "terraform\n${{ steps.plan.outputs.OUTPUT }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
