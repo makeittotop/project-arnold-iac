@@ -42,9 +42,7 @@ jobs:
       run: terraform plan -no-color
       continue-on-error: true
     - name: debug
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-      run: echo ${process.env.PLAN}
+      run: echo ${{ steps.plan.outputs.stdout }}
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
