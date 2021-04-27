@@ -38,13 +38,6 @@ jobs:
       id: plan
       run: terraform plan -no-color
       continue-on-error: true
-    - name: Set the value
-      id: step_one
-      run: echo "::set-output name=FOO::BAR"
-    - name: Use it
-      run: echo ${{ steps.step_one.outputs.FOO }}
-    - name: debug
-      run: echo ${{ steps.plan.outputs.stdout }}
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
