@@ -56,17 +56,17 @@ jobs:
       continue-on-error: true
     - name: pull-request
       id: open-pr
-      if: github.event_name == 'push' && steps.plan.outcome == 'success'
+      if: github.event_name == 'push' && steps.plan.conclusion == 'success'
       uses: repo-sync/pull-request@v2
       with:
         # https://github.com/marketplace/actions/github-pull-request-action
         destination_branch: "main"
-        pr_title: "Pulling ${{ github.ref }} into master"
-        pr_body: ":crown: *An automated PR*"
+        pr_title: "Automating pulling of ${{ github.ref }} into main"
+        pr_body: ":crown: An *automated* PR for *Project Arnold* TF iac. Updated TF plan below"
         pr_allow_empty: false
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: pr-output
-      if: steps.open-pr.outcome == 'success'
+      if: steps.open-pr.conclusion == 'success'
       run: |
         echo ${{steps.open-pr.outputs.pr_url}}
         echo ${{steps.open-pr.outputs.pr_number}}
@@ -75,17 +75,17 @@ jobs:
     - name: Update Pull Request
       uses: actions/github-script@v4
       #if: github.event_name == 'pull_request'
-      if: steps.open-pr.outcome == 'success'
+      if: steps.open-pr.conclusion == 'success'
       env:
         PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const issue_number = `${{ steps.open-pr.outputs.pr_number }}`
-          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-          #### Terraform Validation ⚙️\`${{ steps.validate.outcome }}\`
-          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.conclusion }}\`
+          #### Terraform Validation ⚙️\`${{ steps.validate.conclusion }}\`
+          #### Terraform Initialization ⚙️\`${{ steps.init.conclusion }}\`
+          #### Terraform Plan 📖\`${{ steps.plan.conclusion }}\`
           <details><summary>Show Plan</summary>
           \`\`\`${process.env.PLAN}\`\`\`
           </details>
