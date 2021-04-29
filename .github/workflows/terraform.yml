@@ -59,7 +59,11 @@ jobs:
       if: github.event_name == 'push' && steps.plan.outcome == 'success'
       uses: repo-sync/pull-request@v2
       with:
+        # https://github.com/marketplace/actions/github-pull-request-action
         destination_branch: "main"
+        pr_title: "Pulling ${{ github.ref }} into master"
+        pr_body: ":crown: *An automated PR*"
+        pr_allow_empty: false
         github_token: ${{ secrets.GITHUB_TOKEN }}
     - name: pr-output
       if: steps.open-pr.outcome == 'success'
