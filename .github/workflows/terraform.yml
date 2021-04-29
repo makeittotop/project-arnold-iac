@@ -61,6 +61,15 @@ jobs:
     - name: Print Terraform Plan
       run: |
         echo ${{ steps.plan.outputs.stdout }}
+    - name: Find Terrafrom plan remote run id
+      id: runid
+      uses: AsasInnab/regex-action@v1
+      with:
+        regex_pattern: 'run-[0-9A-Za-z]+'
+        regex_flags: 'gim'
+        search_string: ${{ steps.plan.outputs.stdout }}
+    - name: Echo run id reference
+      run: echo "Terraform plan remote run id reference is ${{ steps.runid.outputs.first_match }}"
       #if: github.event_name == 'pull_request'
       continue-on-error: true
     - name: pull-request
