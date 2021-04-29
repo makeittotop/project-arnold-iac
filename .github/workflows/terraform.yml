@@ -77,8 +77,8 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
         signoff: false
-        #base: ${{ steps.extract_branch.outputs.branch }}
-        branch: main
+        base: main
+        branch: ${{ steps.extract_branch.outputs.branch }}
         delete-branch: false
         title: "Automating pulling ${{ github.ref }} into main"
         body: |
