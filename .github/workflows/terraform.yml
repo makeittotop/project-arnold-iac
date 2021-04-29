@@ -58,6 +58,11 @@ jobs:
       run: terraform plan -no-color
       #if: github.event_name == 'pull_request'
       continue-on-error: true
+    - name: Print Terraform Plan
+      run: |
+        echo ${{ steps.plan.outputs.stdout }}
+      #if: github.event_name == 'pull_request'
+      continue-on-error: true
     - name: pull-request
       id: open-pr
       if: github.event_name == 'push' && steps.plan.conclusion == 'success'
