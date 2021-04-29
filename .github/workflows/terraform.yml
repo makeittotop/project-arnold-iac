@@ -52,8 +52,16 @@ jobs:
     - name: Terraform Plan
       id: plan
       run: terraform plan -no-color
-      if: github.event_name == 'pull_request'
+      #if: github.event_name == 'pull_request'
       continue-on-error: true
+    - name: Create Pull Request
+      id: cpr
+      if: steps.plan.outcome == "success"
+      uses: peter-evans/create-pull-request@v3
+    - name: Check outputs
+      run: |
+        echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+        echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
     - name: Update Pull Request
       uses: actions/github-script@v4
       if: github.event_name == 'pull_request'
