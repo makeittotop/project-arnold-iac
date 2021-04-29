@@ -76,9 +76,6 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
-        signoff: false
-        branch: ${{ steps.extract_branch.outputs.branch }}
-        delete-branch: false
         title: "Automating pulling ${{ github.ref }} into main"
         body: |
           ":crown: An *automated* PR for *Project Arnold* TF iac. Updated TF plan below"
