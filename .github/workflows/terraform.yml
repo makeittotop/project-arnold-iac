@@ -58,9 +58,6 @@ jobs:
       run: terraform plan -no-color
       #if: github.event_name == 'pull_request'
       continue-on-error: true
-    - name: Print Terraform Plan
-      run: |
-        echo ${{ steps.plan.outputs.stdout }}
     - name: Find Terrafrom plan remote run id
       id: runid
       uses: AsasInnab/regex-action@v1
