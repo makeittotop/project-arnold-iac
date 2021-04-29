@@ -56,7 +56,7 @@ jobs:
       continue-on-error: true
     - name: pull-request
       id: open-pr
-      if: github.event_name == 'push' && steps.plan.outcome == 'success'
+      if: github.event_name == 'push' && steps.plan.outcome == 'sucess'
       uses: repo-sync/pull-request@v2
       with:
         destination_branch: "main"
