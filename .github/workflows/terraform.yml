@@ -77,7 +77,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
         signoff: false
-        base: create-pull-request/patch
+        base: dev
         branch: main
         delete-branch: false
         title: "Automating pulling ${{ github.ref }} into main"
