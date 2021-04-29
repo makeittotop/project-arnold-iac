@@ -56,20 +56,22 @@ jobs:
       continue-on-error: true
     - name: pull-request
       id: open-pr
-      if: github.event_name == 'push' && steps.plan.outcome == 'sucess'
+      if: github.event_name == 'push' && steps.plan.outcome == 'success'
       uses: repo-sync/pull-request@v2
       with:
         destination_branch: "main"
         github_token: ${{ secrets.GITHUB_TOKEN }}
-    - name: output-url
-      run: echo ${{steps.open-pr.outputs.pr_url}}
-    - name: output-number
-      run: echo ${{steps.open-pr.outputs.pr_number}}
-    - name: output-has-changed-files
-      run: echo ${{steps.open-pr.outputs.has_changed_files}}
+    - name: pr-output
+      if: steps.open-pr.outcome == 'success'
+      run: |
+        echo ${{steps.open-pr.outputs.pr_url}}
+        echo ${{steps.open-pr.outputs.pr_number}}
+        echo ${{steps.open-pr.outputs.has_changed_files}}
+        echo ${{steps.open-pr.outputs.pr_number}}
     - name: Update Pull Request
       uses: actions/github-script@v4
-      if: github.event_name == 'pull_request'
+      #if: github.event_name == 'pull_request'
+      if: steps.open-pr.outcome == 'success'
       env:
         PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
       with:
