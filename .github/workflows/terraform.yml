@@ -56,7 +56,7 @@ jobs:
       continue-on-error: true
     - name: Create Pull Request
       id: cpr
-      if: steps.plan.outcome == 'success'
+      if: github.event_name == 'push' && steps.plan.outcome == 'success'
       uses: peter-evans/create-pull-request@v3
     - name: Check outputs
       run: |
