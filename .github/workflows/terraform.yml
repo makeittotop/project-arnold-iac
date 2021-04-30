@@ -57,7 +57,7 @@ jobs:
       id: plan
       run: terraform plan -no-color
       #if: github.event_name == 'pull_request'
-      continue-on-error: true
+      continue-on-error: false
     - name: Find Terrafrom plan remote run id
       id: runid
       uses: AsasInnab/regex-action@v1
@@ -66,9 +66,16 @@ jobs:
         regex_flags: 'gim'
         search_string: ${{ steps.plan.outputs.stdout }}
     - name: Echo run id reference
-      run: echo "Terraform plan remote run id = ${{ steps.runid.outputs.first_match }}"
+      run: |
+        echo "{{ steps.runid.outputs.first_match }}"
+        echo "{{ steps.runid.outputs.first_match }}" > tf_cloud_remote_run_id.txt
       #if: github.event_name == 'pull_request'
-      continue-on-error: true
+      continue-on-error: false
+      - name: Upload tf cloud run id
+        uses: actions/upload-artifact@v2
+        with:
+          name: tf_cloud_remote_run_id
+          path: tf_cloud_remote_run_id.txt
     # - name: pull-request
     #   id: open-pr
     #   if: github.event_name == 'push' && steps.plan.conclusion == 'success'
@@ -131,3 +138,12 @@ jobs:
     steps:
       - run: terraform version
       - run: opa version
+      - name: Download tf cloud run id result uploaded by the previous job
+        uses: actions/download-artifact@v2
+        with:
+          name: tf_cloud_remote_run_id
+      - name: Print previously downloaded tf_cloud_run_id.txt
+        shell: bash
+        run: |
+          run_id = `cat tf_cloud_remote_run_id.txt`
+          echo ${run_id}
