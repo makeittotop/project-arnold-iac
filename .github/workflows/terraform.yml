@@ -50,8 +50,6 @@ jobs:
     - name: Terraform Plan
       id: plan
       run: terraform plan -no-color
-      #if: github.event_name == 'pull_request'
-      continue-on-error: false
     - name: Find Terrafrom plan remote run id
       id: runid
       uses: AsasInnab/regex-action@v1
@@ -63,7 +61,6 @@ jobs:
       run: |
         echo "${{ steps.runid.outputs.first_match }}" > tf_cloud_remote_run_id.txt
       #if: github.event_name == 'pull_request'
-      continue-on-error: false
     - name: Upload tf cloud run id
       uses: actions/upload-artifact@v2
       with:
@@ -129,11 +126,17 @@ jobs:
         TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
     needs: [plan-validation]
     steps:
-      # - run: terraform version
-      # - run: opa version
       - name: Download tf cloud run id result uploaded by the previous job
         uses: actions/download-artifact@v2
         with:
           name: tf_cloud_remote_run_id
       - name: Launch OPA policy eval.
-        run: /opa_eval.py $(cat tf_cloud_remote_run_id.txt)
+        id: eval
+        run:  |
+          output=$(/opa_eval.py $(cat tf_cloud_remote_run_id.txt))
+          echo "::set-output name=result::$output"
+        continue-on-error: false
+      - name: OPA Eval Status
+        id: status
+        if: steps.eval.conclusion
+        run: echo "${{ steps.eval.outputs.result }}"
