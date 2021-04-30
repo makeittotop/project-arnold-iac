@@ -120,6 +120,7 @@ jobs:
         id: status
         if: steps.eval.outputs.result == 'false'
         run: exit 1
+      - uses: actions/checkout@v2
       - name: create pull request in case OPA eval result is true
         id: cpr
         if: steps.eval.outputs.result == 'true'
