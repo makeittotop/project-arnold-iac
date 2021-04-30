@@ -18,39 +18,39 @@ resource "aws_launch_configuration" "my_web_config" {
   image_id      = "ami-09b4b74c"
   instance_type = "t2.micro"
 }
-resource "aws_autoscaling_group" "my_asg2" {
-  availability_zones        = ["us-west-2a"]
-  name                      = "my_asg2"
-  max_size                  = 6
-  min_size                  = 1
-  health_check_grace_period = 300
-  health_check_type         = "ELB"
-  desired_capacity          = 4
-  force_delete              = true
-  launch_configuration      = "my_web_config"
-}
-resource "aws_autoscaling_group" "my_asg3" {
-  availability_zones        = ["us-west-2b"]
-  name                      = "my_asg3"
-  max_size                  = 7
-  min_size                  = 1
-  health_check_grace_period = 300
-  health_check_type         = "ELB"
-  desired_capacity          = 4
-  force_delete              = true
-  launch_configuration      = "my_web_config"
-}
-resource "aws_autoscaling_group" "my_asg4" {
-  availability_zones        = ["us-west-2c"]
-  name                      = "my_asg2"
-  max_size                  = 6
-  min_size                  = 1
-  health_check_grace_period = 300
-  health_check_type         = "ELB"
-  desired_capacity          = 4
-  force_delete              = true
-  launch_configuration      = "my_web_config"
-}
+// resource "aws_autoscaling_group" "my_asg2" {
+//   availability_zones        = ["us-west-2a"]
+//   name                      = "my_asg2"
+//   max_size                  = 6
+//   min_size                  = 1
+//   health_check_grace_period = 300
+//   health_check_type         = "ELB"
+//   desired_capacity          = 4
+//   force_delete              = true
+//   launch_configuration      = "my_web_config"
+// }
+// resource "aws_autoscaling_group" "my_asg3" {
+//   availability_zones        = ["us-west-2b"]
+//   name                      = "my_asg3"
+//   max_size                  = 7
+//   min_size                  = 1
+//   health_check_grace_period = 300
+//   health_check_type         = "ELB"
+//   desired_capacity          = 4
+//   force_delete              = true
+//   launch_configuration      = "my_web_config"
+// }
+// resource "aws_autoscaling_group" "my_asg4" {
+//   availability_zones        = ["us-west-2c"]
+//   name                      = "my_asg2"
+//   max_size                  = 6
+//   min_size                  = 1
+//   health_check_grace_period = 300
+//   health_check_type         = "ELB"
+//   desired_capacity          = 4
+//   force_delete              = true
+//   launch_configuration      = "my_web_config"
+// }
 // resource "aws_s3_bucket" "project-arnold-data-bucket" {
 //   bucket = "project-arnold-data-bucket-202104241858"
 //   acl    = "private"
