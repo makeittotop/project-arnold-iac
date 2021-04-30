@@ -114,7 +114,7 @@ jobs:
         id: eval
         shell: bash
         run: |
-          output=$(cat $opa_eval_result.txt)
+          output=$(cat opa_eval_result.txt)
           echo "::set-output name=result::$output"
       - name: OPA Eval Status
         id: status
