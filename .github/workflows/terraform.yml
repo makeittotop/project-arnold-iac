@@ -71,11 +71,11 @@ jobs:
         echo "{{ steps.runid.outputs.first_match }}" > tf_cloud_remote_run_id.txt
       #if: github.event_name == 'pull_request'
       continue-on-error: false
-      - name: Upload tf cloud run id
-        uses: actions/upload-artifact@v2
-        with:
-          name: tf_cloud_remote_run_id
-          path: tf_cloud_remote_run_id.txt
+    - name: Upload tf cloud run id
+       uses: actions/upload-artifact@v2
+       with:
+         name: tf_cloud_remote_run_id
+         path: tf_cloud_remote_run_id.txt
     # - name: pull-request
     #   id: open-pr
     #   if: github.event_name == 'push' && steps.plan.conclusion == 'success'
