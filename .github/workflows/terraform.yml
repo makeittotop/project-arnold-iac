@@ -57,11 +57,11 @@ jobs:
         regex_pattern: 'run-[0-9A-Za-z]+'
         regex_flags: 'gim'
         search_string: ${{ steps.plan.outputs.stdout }}
-    - name: Echo run id reference
+    - name: Write run id to file
       run: |
         echo "${{ steps.runid.outputs.first_match }}" > tf_cloud_remote_run_id.txt
       #if: github.event_name == 'pull_request'
-    - name: Upload tf cloud run id
+    - name: Upload tf cloud file id as artifact
       uses: actions/upload-artifact@v2
       with:
         name: tf_cloud_remote_run_id
@@ -138,5 +138,5 @@ jobs:
         continue-on-error: false
       - name: OPA Eval Status
         id: status
-        if: steps.eval.conclusion
-        run: echo "${{ steps.eval.outputs.result }}"
+        if: steps.eval.outputs.result == 'false'
+        run: exit 1
