@@ -93,6 +93,29 @@ jobs:
           output=$(/opa_eval.py $(cat tf_cloud_remote_run_id.txt))
           echo "::set-output name=result::$output"
         continue-on-error: false
+      - name: Write opa eval result to file
+        run: |
+          echo "${{ steps.eval.outputs.result }}" > opa_eval_result.txt
+      - name: Upload opa eval result as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: opa_eval_result
+          path: opa_eval_result.txt
+  create-pull-request:
+    name: 'create pull request on successful opa guardrails eval.'
+    runs-on: ubuntu-latest
+    needs: [opa]
+    steps:
+      - name: Download opa eval result uploaded by the previous job
+        uses: actions/download-artifact@v2
+        with:
+          name: opa_eval_result
+      - name: Load opa eval result
+        id: eval
+        shell: bash
+        run: |
+          output=$(cat $opa_eval_result.txt)
+          echo "::set-output name=result::$output"
       - name: OPA Eval Status
         id: status
         if: steps.eval.outputs.result == 'false'
@@ -115,28 +138,28 @@ jobs:
           echo ${{steps.cpr.outputs.pr_number}}
           echo ${{steps.cpr.outputs.has_changed_files}}
           echo ${{steps.cpr.outputs.pr_number}}
-    # - name: Update Pull Request
-    #   uses: actions/github-script@v4
-    #   #if: github.event_name == 'pull_request'
-    #   if: steps.open-pr.conclusion == 'success'
-    #   env:
-    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-    #   with:
-    #     github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     script: |
-    #       const issue_number = `${{ steps.open-pr.outputs.pr_number }}`
-    #       const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.conclusion }}\`
-    #       #### Terraform Validation ⚙️\`${{ steps.validate.conclusion }}\`
-    #       #### Terraform Initialization ⚙️\`${{ steps.init.conclusion }}\`
-    #       #### Terraform Plan 📖\`${{ steps.plan.conclusion }}\`
-    #       <details><summary>Show Plan</summary>
-    #       \`\`\`${process.env.PLAN}\`\`\`
-    #       </details>
-    #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+      # - name: Update Pull Request
+      #   uses: actions/github-script@v4
+      #   #if: github.event_name == 'pull_request'
+      #   if: steps.open-pr.conclusion == 'success'
+      #   env:
+      #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const issue_number = `${{ steps.cpr.outputs.pr_number }}`
+      #       const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.conclusion }}\`
+      #       #### Terraform Validation ⚙️\`${{ steps.validate.conclusion }}\`
+      #       #### Terraform Initialization ⚙️\`${{ steps.init.conclusion }}\`
+      #       #### Terraform Plan 📖\`${{ steps.plan.conclusion }}\`
+      #       <details><summary>Show Plan</summary>
+      #       \`\`\`${process.env.PLAN}\`\`\`
+      #       </details>
+      #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-    #       github.issues.createComment({
-    #         issue_number: issue_number,
-    #         owner: context.repo.owner,
-    #         repo: context.repo.repo,
-    #         body: output
-    #       })
+      #       github.issues.createComment({
+      #         issue_number: issue_number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
