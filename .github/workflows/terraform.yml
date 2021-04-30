@@ -5,9 +5,9 @@ on:
     branches:
       - "dev"
       - "feature/*"
-  pull_request:
-    branches:
-      - "main"
+  # pull_request:
+  #   branches:
+  #     - "main"
 
 jobs:
   plan-validation:
@@ -66,49 +66,6 @@ jobs:
       with:
         name: tf_cloud_remote_run_id
         path: tf_cloud_remote_run_id.txt
-    # - name: pull-request
-    #   id: open-pr
-    #   if: github.event_name == 'push' && steps.plan.conclusion == 'success'
-    #   uses: repo-sync/pull-request@v2
-    #   with:
-    #     # https://github.com/marketplace/actions/github-pull-request-action
-    #     destination_branch: "main"
-    #     pr_title: "Automating pulling of ${{ github.ref }} into main"
-    #     pr_body: ":crown: An *automated* PR for *Project Arnold* TF iac. Updated TF plan below"
-    #     pr_allow_empty: false
-    #     github_token: ${{ secrets.GITHUB_TOKEN }}
-    # - name: pr-output
-    #   if: steps.open-pr.conclusion == 'success'
-    #   run: |
-    #     echo ${{steps.open-pr.outputs.pr_url}}
-    #     echo ${{steps.open-pr.outputs.pr_number}}
-    #     echo ${{steps.open-pr.outputs.has_changed_files}}
-    #     echo ${{steps.open-pr.outputs.pr_number}}
-    # - name: Update Pull Request
-    #   uses: actions/github-script@v4
-    #   #if: github.event_name == 'pull_request'
-    #   if: steps.open-pr.conclusion == 'success'
-    #   env:
-    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-    #   with:
-    #     github-token: ${{ secrets.GITHUB_TOKEN }}
-    #     script: |
-    #       const issue_number = `${{ steps.open-pr.outputs.pr_number }}`
-    #       const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.conclusion }}\`
-    #       #### Terraform Validation ⚙️\`${{ steps.validate.conclusion }}\`
-    #       #### Terraform Initialization ⚙️\`${{ steps.init.conclusion }}\`
-    #       #### Terraform Plan 📖\`${{ steps.plan.conclusion }}\`
-    #       <details><summary>Show Plan</summary>
-    #       \`\`\`${process.env.PLAN}\`\`\`
-    #       </details>
-    #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
-
-    #       github.issues.createComment({
-    #         issue_number: issue_number,
-    #         owner: context.repo.owner,
-    #         repo: context.repo.repo,
-    #         body: output
-    #       })
     - name: Terraform Plan Status
       id: plan_status
       if: steps.plan.outcome == 'failure'
@@ -140,3 +97,46 @@ jobs:
         id: status
         if: steps.eval.outputs.result == 'false'
         run: exit 1
+      - name: create pull request in case OPA eval result is true
+        id: cpr
+        if: steps.eval.outputs.result == 'true'
+        uses: repo-sync/pull-request@v2
+        with:
+          # https://github.com/marketplace/actions/github-pull-request-action
+          destination_branch: "main"
+          pr_title: "Automating pulling of ${{ github.ref }} into main"
+          pr_body: ":crown: An *automated* PR for *Project Arnold* TF iac. Updated TF plan below"
+          pr_allow_empty: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: pr output
+        if: steps.cpr.conclusion == 'success'
+        run: |
+          echo ${{steps.cpr.outputs.pr_url}}
+          echo ${{steps.cpr.outputs.pr_number}}
+          echo ${{steps.cpr.outputs.has_changed_files}}
+          echo ${{steps.cpr.outputs.pr_number}}
+    # - name: Update Pull Request
+    #   uses: actions/github-script@v4
+    #   #if: github.event_name == 'pull_request'
+    #   if: steps.open-pr.conclusion == 'success'
+    #   env:
+    #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+    #   with:
+    #     github-token: ${{ secrets.GITHUB_TOKEN }}
+    #     script: |
+    #       const issue_number = `${{ steps.open-pr.outputs.pr_number }}`
+    #       const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.conclusion }}\`
+    #       #### Terraform Validation ⚙️\`${{ steps.validate.conclusion }}\`
+    #       #### Terraform Initialization ⚙️\`${{ steps.init.conclusion }}\`
+    #       #### Terraform Plan 📖\`${{ steps.plan.conclusion }}\`
+    #       <details><summary>Show Plan</summary>
+    #       \`\`\`${process.env.PLAN}\`\`\`
+    #       </details>
+    #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+    #       github.issues.createComment({
+    #         issue_number: issue_number,
+    #         owner: context.repo.owner,
+    #         repo: context.repo.repo,
+    #         body: output
+    #       })
