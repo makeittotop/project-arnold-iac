@@ -144,5 +144,5 @@ jobs:
       - name: Print previously downloaded tf_cloud_run_id.txt
         shell: bash
         run: |
-          echo ${cat tf_cloud_remote_run_id.txt}
+          echo $(cat tf_cloud_remote_run_id.txt)
           ls -lth
