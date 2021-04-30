@@ -136,4 +136,4 @@ jobs:
         with:
           name: tf_cloud_remote_run_id
       - name: Launch OPA policy eval.
-        run: /ope_eval.py $(cat tf_cloud_remote_run_id.txt)
+        run: /opa_eval.py $(cat tf_cloud_remote_run_id.txt)
