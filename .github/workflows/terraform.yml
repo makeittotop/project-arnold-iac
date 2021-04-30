@@ -67,7 +67,6 @@ jobs:
         search_string: ${{ steps.plan.outputs.stdout }}
     - name: Echo run id reference
       run: |
-        echo "{{ steps.runid.outputs.first_match }}"
         echo "{{ steps.runid.outputs.first_match }}" > tf_cloud_remote_run_id.txt
       #if: github.event_name == 'pull_request'
       continue-on-error: false
