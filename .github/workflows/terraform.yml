@@ -136,4 +136,8 @@ jobs:
         with:
           name: tf_cloud_remote_run_id
       - name: Launch OPA policy eval.
-        run: cat tf_cloud_remote_run_id.txt
+        run: |
+          terraform version
+          opa version
+          opa bersion
+          /entrypoint.py $(cat tf_cloud_remote_run_id.txt)
