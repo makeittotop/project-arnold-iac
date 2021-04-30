@@ -66,14 +66,6 @@ jobs:
       with:
         name: tf_cloud_remote_run_id
         path: tf_cloud_remote_run_id.txt
-    - name: Terraform Plan Status
-      id: plan_status
-      if: steps.plan.outcome == 'failure'
-      run: exit 1
-    - name: Terraform Apply
-      id: apply
-      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      run: terraform apply -auto-approve
   opa:
     name: 'opa-guardrails'
     runs-on: ubuntu-latest
@@ -93,29 +85,6 @@ jobs:
           output=$(/opa_eval.py $(cat tf_cloud_remote_run_id.txt))
           echo "::set-output name=result::$output"
         continue-on-error: false
-      - name: Write opa eval result to file
-        run: |
-          echo "${{ steps.eval.outputs.result }}" > opa_eval_result.txt
-      - name: Upload opa eval result as artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: opa_eval_result
-          path: opa_eval_result.txt
-  create-pull-request:
-    name: 'create pull request on successful opa guardrails eval.'
-    runs-on: ubuntu-latest
-    needs: [opa]
-    steps:
-      - name: Download opa eval result uploaded by the previous job
-        uses: actions/download-artifact@v2
-        with:
-          name: opa_eval_result
-      - name: Load opa eval result
-        id: eval
-        shell: bash
-        run: |
-          output=$(cat opa_eval_result.txt)
-          echo "::set-output name=result::$output"
       - name: OPA Eval Status
         id: status
         if: steps.eval.outputs.result == 'false'
@@ -164,3 +133,11 @@ jobs:
       #         repo: context.repo.repo,
       #         body: output
       #       })
+    - name: Terraform Plan Status
+      id: plan_status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+    - name: Terraform Apply
+      id: apply
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: terraform apply -auto-approve

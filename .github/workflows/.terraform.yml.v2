@@ -137,3 +137,170 @@ jobs:
       id: apply
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       run: terraform apply -auto-approve
+---
+name: 'Terraform'
+
+on:
+  push:
+    branches:
+      - "dev"
+      - "feature/*"
+  # pull_request:
+  #   branches:
+  #     - "main"
+
+jobs:
+  plan-validation:
+    name: 'TF Plan Validation'
+    runs-on: ubuntu-latest
+    # container:
+    #   image: makeittotop/terraform_opa:latest
+    #   env:
+    #     TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+    steps:
+    - name: Extract branch name
+      shell: bash
+      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+      id: extract_branch
+    - name: code checkout
+      uses: actions/checkout@v2
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+        terraform_version: 0.15.0
+    - run: terraform version
+    # - name: create terraform resource file
+    #   run: |2
+    #     cat > $HOME/.terraformrc << EOF
+    #     credentials "app.terraform.io" {
+    #       token = "${TF_API_TOKEN}"
+    #     }
+    #     disable_checkpoint = true
+    #     EOF
+    - name: Terraform Fmt
+      id: fmt
+      run: terraform fmt -check
+    - name: Terraform Init
+      id: init
+      run: terraform init
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color
+    - name: Find Terrafrom plan remote run id
+      id: runid
+      uses: AsasInnab/regex-action@v1
+      with:
+        regex_pattern: 'run-[0-9A-Za-z]+'
+        regex_flags: 'gim'
+        search_string: ${{ steps.plan.outputs.stdout }}
+    - name: Write run id to file
+      run: |
+        echo "${{ steps.runid.outputs.first_match }}" > tf_cloud_remote_run_id.txt
+      #if: github.event_name == 'pull_request'
+    - name: Upload tf cloud file id as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: tf_cloud_remote_run_id
+        path: tf_cloud_remote_run_id.txt
+    - name: Terraform Plan Status
+      id: plan_status
+      if: steps.plan.outcome == 'failure'
+      run: exit 1
+    - name: Terraform Apply
+      id: apply
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: terraform apply -auto-approve
+  opa:
+    name: 'opa-guardrails'
+    runs-on: ubuntu-latest
+    container:
+      image: makeittotop/terraform_opa:latest
+      env:
+        TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+    needs: [plan-validation]
+    steps:
+      - name: Download tf cloud run id result uploaded by the previous job
+        uses: actions/download-artifact@v2
+        with:
+          name: tf_cloud_remote_run_id
+      - name: Launch OPA policy eval.
+        id: eval
+        run:  |
+          output=$(/opa_eval.py $(cat tf_cloud_remote_run_id.txt))
+          echo "::set-output name=result::$output"
+        continue-on-error: false
+      - name: Write opa eval result to file
+        run: |
+          echo "${{ steps.eval.outputs.result }}" > opa_eval_result.txt
+      - name: Upload opa eval result as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: opa_eval_result
+          path: opa_eval_result.txt
+  create-pull-request:
+    name: 'create pull request on successful opa guardrails eval.'
+    runs-on: ubuntu-latest
+    needs: [opa]
+    steps:
+      - name: Download opa eval result uploaded by the previous job
+        uses: actions/download-artifact@v2
+        with:
+          name: opa_eval_result
+      - name: Load opa eval result
+        id: eval
+        shell: bash
+        run: |
+          output=$(cat opa_eval_result.txt)
+          echo "::set-output name=result::$output"
+      - name: OPA Eval Status
+        id: status
+        if: steps.eval.outputs.result == 'false'
+        run: exit 1
+      - uses: actions/checkout@v2
+      - name: create pull request in case OPA eval result is true
+        id: cpr
+        if: steps.eval.outputs.result == 'true'
+        uses: repo-sync/pull-request@v2
+        with:
+          # https://github.com/marketplace/actions/github-pull-request-action
+          destination_branch: "main"
+          pr_title: "Automating pulling of ${{ github.ref }} into main"
+          pr_body: ":crown: An *automated* PR for *Project Arnold* TF iac. Updated TF plan below"
+          pr_allow_empty: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: pr output
+        if: steps.cpr.conclusion == 'success'
+        run: |
+          echo ${{steps.cpr.outputs.pr_url}}
+          echo ${{steps.cpr.outputs.pr_number}}
+          echo ${{steps.cpr.outputs.has_changed_files}}
+          echo ${{steps.cpr.outputs.pr_number}}
+      # - name: Update Pull Request
+      #   uses: actions/github-script@v4
+      #   #if: github.event_name == 'pull_request'
+      #   if: steps.open-pr.conclusion == 'success'
+      #   env:
+      #     PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      #   with:
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     script: |
+      #       const issue_number = `${{ steps.cpr.outputs.pr_number }}`
+      #       const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.conclusion }}\`
+      #       #### Terraform Validation ⚙️\`${{ steps.validate.conclusion }}\`
+      #       #### Terraform Initialization ⚙️\`${{ steps.init.conclusion }}\`
+      #       #### Terraform Plan 📖\`${{ steps.plan.conclusion }}\`
+      #       <details><summary>Show Plan</summary>
+      #       \`\`\`${process.env.PLAN}\`\`\`
+      #       </details>
+      #       *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+      #       github.issues.createComment({
+      #         issue_number: issue_number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: output
+      #       })
