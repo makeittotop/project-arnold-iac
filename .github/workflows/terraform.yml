@@ -129,14 +129,11 @@ jobs:
         TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
     needs: [plan-validation]
     steps:
-      - run: terraform version
-      - run: opa version
+      # - run: terraform version
+      # - run: opa version
       - name: Download tf cloud run id result uploaded by the previous job
         uses: actions/download-artifact@v2
         with:
           name: tf_cloud_remote_run_id
-      - name: Print previously downloaded tf_cloud_run_id.txt
-        shell: bash
-        run: |
-          echo $(cat tf_cloud_remote_run_id.txt)
-          ls -lth
+      - name: Launch OPA policy eval.
+        run: cat tf_cloud_remote_run_id.txt
