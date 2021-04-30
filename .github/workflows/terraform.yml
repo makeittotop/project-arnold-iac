@@ -67,7 +67,7 @@ jobs:
         search_string: ${{ steps.plan.outputs.stdout }}
     - name: Echo run id reference
       run: |
-        echo "{{ steps.runid.outputs.first_match }}" > tf_cloud_remote_run_id.txt
+        echo "${{ steps.runid.outputs.first_match }}" > tf_cloud_remote_run_id.txt
       #if: github.event_name == 'pull_request'
       continue-on-error: false
     - name: Upload tf cloud run id
@@ -144,5 +144,5 @@ jobs:
       - name: Print previously downloaded tf_cloud_run_id.txt
         shell: bash
         run: |
-          run_id = `cat tf_cloud_remote_run_id.txt`
-          echo ${run_id}
+          echo ${cat tf_cloud_remote_run_id.txt}
+          ls -lth
